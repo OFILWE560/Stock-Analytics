@@ -60,13 +60,30 @@ Since the raw dataset is panel data (505 stocks mixed together), this task isola
 ---
 
 ## Task 3: Clustering Analysis (K-Means)
-
-*Coming soon — will group stocks by behavior (e.g. volatility, average return) using K-Means clustering.*
-
+ 
+**Objectives:** standardize the dataset (`StandardScaler`), apply K-Means and determine the optimal number of clusters using the elbow method, and visualize the clusters in a 2D scatter plot.
+ 
+The raw dataset is panel data (505 stocks × daily prices), so clustering at the row level wouldn't be meaningful. Instead, each stock was reduced to **one row of summary behavior**: average daily return, volatility (standard deviation of daily return), average trading volume, and average closing price, computed only over the 477 stocks with a full trading history, so every comparison is apples-to-apples.
+ 
+These four features were standardized before clustering, since `avg_volume` is in the millions while `avg_daily_return` is a tiny fraction — without scaling, volume would dominate the distance calculation and the other features would barely matter.
+ 
+The elbow method (inertia across k = 1–10) showed a clear bend around **k = 4**: inertia kept dropping past that point, but far more gradually, the standard signal that further splitting stops paying off.
+ 
+| Cluster | Description | Avg Daily Return | Volatility | Avg Volume | Avg Close |
+|---|---|---|---|---|---|
+| 1 | Mainstream / stable | Moderate | Low | Moderate | Low ($) |
+| 2 | High volatility | Lowest | Highest | Moderate-high | Low ($) |
+| 0 | Expensive, low-volume | Moderate | Low-moderate | Low | High ($) |
+| 3 | High-volume, low-price | Highest | Moderate | Very high | Lowest ($) |
+ 
+![Stock clusters by volatility vs average daily return](cluster_scatter.png)
+ 
+The clusters aren't arbitrary, they separate mainstream, steady-return stocks (the bulk of the market) from a smaller group with genuinely wider swings in both directions, plus two smaller outlier groups: a handful of expensive, low-volume names (Amazon, Google, Priceline-type stocks) and a few high-volume, low-price stocks that trade very differently from everything else. That's exactly the kind of structure K-Means should surface from return and volatility alone, without ever being told which companies these are.
+ 
 ---
-
+ 
 ## Repository Structure
-
+ 
 ```
 Level2-Stock-Analytics/
 ├── 2__Stock_Prices_Data_Set.csv      # raw dataset
@@ -77,14 +94,15 @@ Level2-Stock-Analytics/
 ├── ts_raw.png
 ├── ts_decompose.png
 ├── ts_ma.png
-├── clustering_analysis.ipynb         # Task 3: clustering (coming soon)
+├── clustering_analysis.ipynb         # Task 3: clustering
+├── elbow.png
+├── cluster_scatter.png
 └── README.md
 ```
-
+ 
 ## Tools
-
-Python · pandas · scikit-learn · statsmodels · matplotlib
-
+ 
+Python · pandas · scikit-learn · statsmodels · matplotlib · seaborn
 ## How to Run
 
 1. Clone the repo and install dependencies:
